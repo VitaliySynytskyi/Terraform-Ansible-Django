@@ -1,0 +1,27 @@
+- name: Change db configuration
+  template:
+    src: settings.j2
+    dest: /home/ubuntu/sample-django/mysite/settings.py
+  vars:
+    dbhost: '{{ database_host }}'  
+  when: "'public' in group_names"
+
+- name: Export variables and launch app
+  shell: |
+          export DATABASE_URL=postgresql://{{ database_host }}:5432 
+          tmux new-session -d -s app 'python3 /home/ubuntu/sample-django/manage.py runserver 0.0.0.0:8000'
+  when: "'public' in group_names"
+
+- name: Export variables and migrate
+  shell: |
+          export DATABASE_URL=postgresql://{{ database_host }}:5432 
+          python3 /home/ubuntu/sample-django/manage.py migrate
+  when: "'public' in group_names"
+  run_once: true
+  
+- name: Export variables and create superuser
+  shell: |
+          export DATABASE_URL=postgresql://{{ database_host }}:5432 
+          python3 /home/ubuntu/sample-django/manage.py createsuperuser --username ubuntu --email howery1337@gmail.com --noinput
+  run_once: true
+  when: "'public' in group_names"
