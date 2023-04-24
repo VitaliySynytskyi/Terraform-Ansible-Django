@@ -82,7 +82,7 @@
   when: "'public' in group_names"
 
 - name: Copy nginx configuration file
-  get_url:
+  template:
     src: nginx.conf.j2
     dest: "/etc/nginx/sites-available/default"
   when: "'public' in group_names"
